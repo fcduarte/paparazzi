@@ -90,13 +90,19 @@ class HtmlReportWriter @JvmOverloads constructor(
   ): FrameHandler {
     return object : FrameHandler {
       val hashes = mutableListOf<String>()
+      val tempVideo: File by lazy { File(videosDirectory, snapshot.toFileName(extension = "mov")).apply { delete() } }
+      val encoder: AWTSequenceEncoder by lazy { AWTSequenceEncoder.createSequenceEncoder(tempVideo, fps) }
 
       override fun handle(image: BufferedImage) {
-        hashes += writeImage(image)
+        if (fps != -1) {
+          encoder.encodeImage(image)
+        } else {
+          hashes += writeImage(image)
+        }
       }
 
       override fun close() {
-        if (hashes.isEmpty()) return
+        if (fps == -1 && hashes.isEmpty()) return
 
         val shot = if (hashes.size == 1) {
           val original = File(imagesDirectory, "${hashes[0]}.png")
@@ -106,15 +112,13 @@ class HtmlReportWriter @JvmOverloads constructor(
           }
           snapshot.copy(file = original.toJsonPath())
         } else {
-          val hash = writeVideo(hashes, fps)
-          val original = File(videosDirectory, "$hash.mov")
+          encoder.finish()
           if (isRecording) {
             val goldenFile = File(goldenVideosDirectory, snapshot.toFileName("_", "mov"))
-            if (!goldenFile.exists()) {
-              original.copyTo(goldenFile)
-            }
+            goldenFile.delete()
+            tempVideo.copyTo(goldenFile)
           }
-          snapshot.copy(file = original.toJsonPath())
+          snapshot.copy(file = tempVideo.toJsonPath())
         }
 
         shots += shot
@@ -140,37 +144,6 @@ class HtmlReportWriter @JvmOverloads constructor(
         for (x in 0 until image.width) {
           sink.writeInt(image.getRGB(x, y))
         }
-      }
-    }
-    return hashingSink.hash.hex()
-  }
-
-  private fun writeVideo(
-    frameHashes: List<String>,
-    fps: Int
-  ): String {
-    val hash = hash(frameHashes)
-    val file = File(videosDirectory, "$hash.mov")
-    if (!file.exists()) {
-      val tmpFile = File(videosDirectory, "$hash.mov.tmp")
-      val encoder = AWTSequenceEncoder.createSequenceEncoder(tmpFile, fps)
-      for (frameHash in frameHashes) {
-        val frame = ImageIO.read(File(imagesDirectory, "$frameHash.png"))
-        encoder.encodeImage(frame)
-      }
-      encoder.finish()
-      tmpFile.renameTo(file)
-    }
-    return hash
-  }
-
-  /** Returns a SHA-1 hash of [lines]. */
-  private fun hash(lines: List<String>): String {
-    val hashingSink = HashingSink.sha1(blackholeSink())
-    hashingSink.buffer().use { sink ->
-      for (hash in lines) {
-        sink.writeUtf8(hash)
-        sink.writeUtf8("\n")
       }
     }
     return hashingSink.hash.hex()
