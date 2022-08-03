@@ -10,11 +10,13 @@ copyright: 'Copyright &copy; 2019 Square, Inc.'
 
 theme:
   name: 'material'
-  favicon: images/icon-square.png
-  logo: images/icon-square.png
+  favicon: images/favicon-cashapp.png
+  logo: images/icon-cashapp.png
   palette:
     primary: 'light blue'
     accent: 'blue'
+  features:
+    - navigation.tabs
 
 extra_css:
   - 'css/app.css'
@@ -37,9 +39,12 @@ markdown_extensions:
   - tables
 
 nav:
-  - 'Overview': index.md
-  - '1.x API': 1.x/paparazzi/app.cash.paparazzi/index.md
-  - 'Change Log': changelog.md
-  - 'Code of Conduct': code_of_conduct.md
-  - 'Stack Overflow ⏏': https://stackoverflow.com/questions/tagged/paparazzi?sort=active
+  - 'Paparazzi':
+    - 'Overview': index.md    
+    - 'Change Log': changelog.md
+    - 'Code of Conduct': code_of_conduct.md
+    - 'Stack Overflow ⏏': https://stackoverflow.com/questions/tagged/paparazzi?sort=active
+  - 'Recipes': recipes.md
+  - 'API': 1.x/paparazzi/app.cash.paparazzi/index.md
+
 
