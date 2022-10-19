@@ -13,8 +13,8 @@ compileSdk = "31"
 
 # Maps to this commit: https://android.googlesource.com/platform/prebuilts/studio/layoutlib/+/fa3aa65
 # which runs on JDK 11.
-layoutlib = "2021.2.1-patch1-fa3aa65"
-layoutlibPrebuiltSha = "fa3aa65"
+layoutlib = "2021.1.1-573f070"
+layoutlibPrebuiltSha = "573f070"
 
 [libraries]
 androidx-annotations = { module = "androidx.annotation:annotation", version = "1.3.0" }
